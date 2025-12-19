@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Calendar | TailAdmin - Tailwind CSS Admin Dashboard Template</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/css/lineicons.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="assets/css/materialdesignicons.min.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="assets/css/fullcalendar.css" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* Hide sidebar by default on load. Toggle by adding/removing .sidebar-hidden on the aside and overlay. */
+        .sidebar-nav-wrapper.sidebar-hidden {
+            transform: translateX(-320px);
+            transition: transform .28s ease;
+        }
+
+        .overlay.sidebar-hidden {
+            display: none;
+        }
+
+        /* Ensure the sidebar stays positioned while hidden on desktop */
+        @@media (min-width: 992px) {
+            .sidebar-nav-wrapper {
+                position: fixed;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                z-index: 999;
+            }
+        }
+    </style>
+
+    @await RenderSectionAsync("Head", false)
+</head>
+<body>
+    <!-- ======== Preloader =========== -->
+    <div id="preloader">
+        <div class="spinner"></div>
+    </div>
+    <!-- ======== Preloader =========== -->
+    <!-- ======== sidebar-nav start =========== -->
+    <aside class="sidebar-nav-wrapper sidebar-hidden">
+       
+    </aside>
+    <div class="overlay"></div>
+    <!-- ======== sidebar-nav end =========== -->
+    <!-- ======== main-wrapper start =========== -->
+    <main class="main-wrapper">
+        <!-- ========== header start ========== -->
+        <header class="header">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-4">
+                        <h1 style="padding-left: 3rem;">
+                            <img src="~/logo.webp" style="height: 25px; margin-bottom: 10px;"/>
+                            McAllister Family Wall
+                        </h1>
+                    </div>
+                    <div class="col-4">
+                        <div class="header-center">
+                            <div id="liveDateTime" class="text-center" aria-live="polite" aria-atomic="true" style="font-size: 1.5rem;"></div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="header-right">
+                            <a asp-page="Index" class="btn">
+                                <i class="lni lni-calendar"></i>
+                            </a>
+                            <a asp-page="Slideshow" class="btn">
+                                <i class="lni lni-image"></i>
+                            </a>
+                            <a asp-page="Sync" class="btn">
+                                <i class="lni lni-cloud-sync"></i>
+                            </a>
+                            <a asp-page="?" class="btn">
+                                <i class="lni lni-reload"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- ========== header end ========== -->
+        <!-- ========== section start ========== -->
+        <section class="section">
+        <div class="container-fluid">
+        @RenderBody()
+
+        </div>
+            <!-- end container -->
+        </section>
+        <!-- ========== section end ========== -->
+        <!-- ========== footer start =========== -->
+        <footer class="footer">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-6 order-last order-md-first">
+                        <div class="copyright text-center text-md-start">
+                            <p class="text-sm">
+                                
+                            </p>
+                        </div>
+                    </div>
+                    <!-- end col-->
+                    <div class="col-md-6">
+                        <div class="terms d-flex justify-content-center justify-content-md-end">
+                            
+                        </div>
+                    </div>
+                </div>
+                <!-- end row -->
+            </div>
+            <!-- end container -->
+        </footer>
+        <!-- ========== footer end =========== -->
+    </main>
+    <!-- ======== main-wrapper end =========== -->
+
+            
+    <script>
+        // Wire up a basic toggle that removes the "sidebar-hidden" class when the Menu button is clicked.
+        // This is intentionally lightweight so it doesn't conflict with existing main.js behavior.
+        (function () {
+            var aside = document.querySelector('.sidebar-nav-wrapper');
+            var overlay = document.querySelector('.overlay');
+            var toggle = document.getElementById('menu-toggle');
+
+            function showSidebar() {
+                aside.classList.remove('sidebar-hidden');
+                overlay.classList.remove('sidebar-hidden');
+            }
+
+            function hideSidebar() {
+                aside.classList.add('sidebar-hidden');
+                overlay.classList.add('sidebar-hidden');
+            }
+
+            if (toggle) {
+                toggle.addEventListener('click', function (e) {
+                    if (aside.classList.contains('sidebar-hidden')) {
+                        showSidebar();
+                    } else {
+                        hideSidebar();
+                    }
+                });
+            }
+
+            if (overlay) {
+                overlay.addEventListener('click', hideSidebar);
+            }
+
+            // keep sidebar hidden on load (already set via markup), but ensure no flash if script runs later
+            if (aside && !aside.classList.contains('sidebar-hidden')) {
+                hideSidebar();
+            }
+        })();
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/js/all.min.js" integrity="sha512-6BTOlkauINO65nLhXhthZMtepgJSghyimIalb+crKRPhvhmsCdnIuGcVbR5/aQY2A+260iC1OPy1oCdB6pSSwQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="~/js/clock.js"></script>
+@await RenderSectionAsync("Scripts", false)
+</body>
+</html>

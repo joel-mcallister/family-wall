@@ -1,0 +1,129 @@
+﻿@page
+@model FamilyWall.Pages.SyncModel
+@{
+    
+}
+
+<h2>Photo Sync</h2>
+
+<p>
+    <button id="sync-all" type="button">Sync All</button>
+</p>
+
+@if (Model.AllPhotos == null)
+{
+    <p>No photos found.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>File</th>
+                <th>Date Taken</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in Model.AllPhotos)
+            {
+                // Expecting each item to have Id and FileName (adjust if your model uses different names)
+                var id = p.Id;
+                var fileName = p.Name ?? "(no name)";
+                var initialStatus = "not started";
+                
+                <tr>
+                    <td>@fileName</td>
+                    <td>@p.Photo?.TakenDateTime?.ToString()</td>
+                    <td id="status-@id">@initialStatus</td>
+                    <td>
+                        <button class="sync-btn" type="button" data-id="@id">Sync</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@section Scripts {
+    <script>
+        (function () {
+            function setStatus(id, text) {
+                var el = document.getElementById('status-' + id);
+                if (el) el.textContent = text;
+            }
+
+            async function syncOne(id) {
+                setStatus(id, 'started');
+                try {
+                    var url = '/Sync?handler=SyncPhoto&id=' + encodeURIComponent(id);
+                    var res = await fetch(url, { method: 'GET', credentials: 'same-origin' });
+                    if (res.status === 200) {
+                        setStatus(id, 'completed');
+                    } else if (res.status === 404) {
+                        setStatus(id, 'not found');
+                    } else if (res.status === 409) {
+                        setStatus(id, 'already exists');
+                    } else {
+                        var txt = '';
+                        try { txt = await res.text(); } catch (e) { /* ignore */ }
+                        console.error('Sync failed for', id, 'status', res.status, txt);
+                        setStatus(id, 'error');
+                    }
+                } catch (err) {
+                    console.error('Sync exception for', id, err);
+                    setStatus(id, 'error');
+                }
+            }
+
+            // Keep per-item click behavior for manual retry, but we'll disable clicks when auto-run starts.
+            document.querySelectorAll('.sync-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var id = this.getAttribute('data-id');
+                    if (!id) return;
+                    // Fire and forget per-item sync
+                    syncOne(id);
+                });
+            });
+
+            document.getElementById('sync-all')?.addEventListener('click', async function () {
+                var buttons = Array.from(document.querySelectorAll('.sync-btn'));
+                // Sequential to avoid overwhelming server; adjust concurrency if desired.
+                for (var i = 0; i < buttons.length; i++) {
+                    var id = buttons[i].getAttribute('data-id');
+                    if (!id) continue;
+                    await syncOne(id);
+                    // small throttle
+                    await new Promise(function (r) { setTimeout(r, 100); });
+                }
+            });
+
+            // AUTO-START: begin sequential sync on load, one at a time, no button press required.
+            // Hide the "Sync All" button and disable per-row buttons while auto-sync runs to avoid duplicates.
+            document.addEventListener('DOMContentLoaded', function () {
+                var syncAllBtn = document.getElementById('sync-all');
+                if (syncAllBtn) {
+                    // hide so UI doesn't suggest a manual start is required
+                    syncAllBtn.style.display = 'none';
+                }
+
+                var buttons = Array.from(document.querySelectorAll('.sync-btn'));
+                // mark buttons disabled during auto run; they can remain for manual retry after load if you want.
+                buttons.forEach(function (b) { b.disabled = true; });
+
+                (async function autoRun() {
+                    for (var i = 0; i < buttons.length; i++) {
+                        var id = buttons[i].getAttribute('data-id');
+                        if (!id) continue;
+                        await syncOne(id);
+                        // small throttle to be polite to the server
+                        await new Promise(function (r) { setTimeout(r, 100); });
+                    }
+                    // re-enable buttons after auto-run so user can retry individual items if needed
+                    buttons.forEach(function (b) { b.disabled = false; });
+                })();
+            });
+        })();
+    </script>
+}

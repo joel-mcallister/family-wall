@@ -416,3 +416,8 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+/FamilyWall/client_secret_397379399910-uuelc48uthifigh533q08rm71gkaim8q.apps.googleusercontent.com.json
+/FamilyWall/client_secret_397379399910-uuelc48uthifigh533q08rm71gkaim8q.apps.googleusercontent.com.json
+/FamilyWall/client_secret_397379399910-o9g2r4qs1lveulrv3mvhm1gvm6bq2ucp.apps.googleusercontent.com.json
+/FamilyWall/token.json/Google.Apis.Auth.OAuth2.Responses.TokenResponse-user
+/FamilyWall/photos
