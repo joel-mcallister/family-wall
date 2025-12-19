@@ -1,9 +1,10 @@
-﻿using System.Net.Http.Headers;
-using System.Net.Mime;
-using FamilyWall.Services;
+﻿using FamilyWall.Services;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
+using System;
+using System.Net.Http.Headers;
+using System.Net.Mime;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -75,14 +76,44 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/photos"
 });
 
-// Launch browser after a short delay
-_ = Task.Run(async () =>
+if (builder.Configuration["WallSettings:KioskMode"]?.ToLower() == "true")
 {
-    await Task.Delay(2000); // Give server time to start
-    LaunchBrowser("http://localhost:8888");
-});
+    // Launch browser after a short delay
+    _ = Task.Run(async () =>
+    {
+        await Task.Delay(2000); // Give server time to start
+        LaunchKiosk("http://localhost:8888");
+    });
+}
+else
+{
+    // Launch browser after a short delay
+    _ = Task.Run(async () =>
+    {
+        await Task.Delay(2000); // Give server time to start
+        LaunchBrowser("http://localhost:8888");
+    });
+}
 
 app.Run();
+
+static void LaunchKiosk(string url)
+{
+    try
+    {
+        // Raspberry Pi OS typically uses Chromium
+        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+        {
+            FileName = "chromium-browser",
+            Arguments = $"--kiosk --noerrdialogs --disable-infobars {url}",
+            UseShellExecute = true
+        });
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Failed to launch browser: {ex.Message}");
+    }
+}
 
 static void LaunchBrowser(string url)
 {
@@ -92,7 +123,6 @@ static void LaunchBrowser(string url)
         System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
         {
             FileName = "chromium-browser",
-            Arguments = $"--kiosk --noerrdialogs --disable-infobars {url}",
             UseShellExecute = true
         });
     }
