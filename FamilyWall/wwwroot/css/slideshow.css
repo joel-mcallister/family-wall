@@ -1,4 +1,8 @@
-﻿/* Full-viewport background layer at 50% opacity (does not affect children) */
+﻿body {
+    overflow-y: hidden !important;
+}
+
+/* Full-viewport background layer at 50% opacity (does not affect children) */
 #backgroundLayer {
     position: fixed;
     inset: 0;

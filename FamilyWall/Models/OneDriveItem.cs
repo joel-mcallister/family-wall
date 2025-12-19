@@ -1,11 +1,16 @@
-﻿namespace FamilyWall.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace FamilyWall.Models;
 
 public sealed class OneDriveItem
 {
     public string? Id { get; set; }
     public string? Name { get; set; }
     public string? WebUrl { get; set; }
+
     public OneDriveFileFacet? File { get; set; }
+    
+    [JsonPropertyName("photo")]
     public OneDrivePhotoFacet? Photo { get; set; }
     public OneDriveFileSystemInfoFacet? FileSystemInfo { get; set; }
     public DateTimeOffset? CreatedDateTime { get; set; }

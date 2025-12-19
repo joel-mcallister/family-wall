@@ -56,6 +56,22 @@ function loadRandomImage() {
                 swapWithFade(url);
             };
             temp.src = url;
+
+            // Remove all child items from cornerMessage
+            var corner = document.getElementById('cornerMessage');
+            if (corner) {
+                while (corner.firstChild) {
+                    corner.removeChild(corner.firstChild);
+                }
+            }
+
+            if (data.taken) {
+                var dateTaken = $('<div />').text(data.taken);
+                $('#cornerMessage').show().append(dateTaken);
+            }
+            else {
+                $('#cornerMessage').hide();
+            }
         })
         .catch(function (err) {
             console.error('Failed to load image:', err);

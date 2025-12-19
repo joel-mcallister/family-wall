@@ -188,6 +188,26 @@ public class IndexModel(
                 SlidingExpiration = TimeSpan.FromHours(2)
             });
 
+            var path = Path.Combine(photosFolder, $"{Path.GetFileNameWithoutExtension(photo)}.json");
+            if (System.IO.File.Exists(path))
+            {
+                var readAllText = System.IO.File.ReadAllText(path);
+                var details =
+                    JsonSerializer.Deserialize<OneDriveItem>(
+                        readAllText, _json);
+
+                return new JsonResult(new
+                {
+                    url = photo, 
+                    taken = details?.Photo?.TakenDateTime?.ToString("f"),
+                    alltitude = details?.Location?.Altitude,
+                    longitude = details?.Location?.Longitude,
+                    latitude = details?.Location?.Latitude,
+                    camera = details?.Photo?.CameraMake,
+                    cameraModel = details?.Photo?.CameraModel
+                });
+            }
+
             return new JsonResult(new { url = photo });
         }
 

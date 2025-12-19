@@ -5,7 +5,7 @@
     ViewData["Title"] = "Photo Slideshow";
 }
     
-<div id="randomImageBody">
+<div id="randomImageBody" style="position: relative;">
     <div id="backgroundLayer" aria-hidden="true"></div>
 
     <div id="foregroundLayer" role="img" aria-label="Slideshow image container">
@@ -13,6 +13,12 @@
     </div>
 
     <div id="blackOverlay" aria-hidden="true"></div>
+
+    <div id="cornerMessage"
+         aria-hidden="true"
+         style="position: absolute; bottom: 6rem; right: 1rem; background-color: rgba(0,0,0,0.5); color: #ffffff; padding: 0.4rem 0.6rem; border-radius: 4px; z-index: 1000; font-size: 0.9rem;">
+        
+    </div>
 </div>
 
 @section Head

@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
-using FamilyWall.Models;
+﻿using FamilyWall.Models;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Calendar.v3;
 using Google.Apis.Calendar.v3.Data;
@@ -105,8 +103,8 @@ public class GoogleCalendarService(IConfiguration configuration)
         var endDate = startDate.AddMonths(1);
 
         var request = service.Events.List(calendarId);
-        request.TimeMin = startDate;
-        request.TimeMax = endDate;
+        request.TimeMinDateTimeOffset = startDate;
+        request.TimeMaxDateTimeOffset = endDate;
         request.ShowDeleted = false;
         request.SingleEvents = true;
         request.OrderBy = EventsResource.ListRequest.OrderByEnum.StartTime;
@@ -116,12 +114,12 @@ public class GoogleCalendarService(IConfiguration configuration)
 
         foreach (var eventItem in events.Items)
         {
-            DateTime? startDateTime = null;
+            DateTimeOffset? startDateTime = null;
             bool isAllDay = false;
 
-            if (eventItem.Start.DateTime.HasValue)
+            if (eventItem.Start.DateTimeDateTimeOffset.HasValue)
             {
-                startDateTime = eventItem.Start.DateTime.Value;
+                startDateTime = eventItem.Start.DateTimeDateTimeOffset.Value;
             }
             else if (!string.IsNullOrEmpty(eventItem.Start.Date))
             {
@@ -136,8 +134,8 @@ public class GoogleCalendarService(IConfiguration configuration)
                     EventId = eventItem.Id,
                     Title = eventItem.Summary ?? "Untitled Event",
                     Description = eventItem.Description,
-                    StartDateTime = startDateTime.Value,
-                    EndDateTime = eventItem.End.DateTime ?? DateTime.Parse(eventItem.End.Date),
+                    StartDateTime = startDateTime.Value.ToLocalTime().DateTime,
+                    EndDateTime = eventItem.End.DateTimeDateTimeOffset?.ToLocalTime().DateTime ?? DateTime.Parse(eventItem.End.Date),
                     IsAllDay = isAllDay,
                     Location = eventItem.Location,
                     Color = GetEventColor(eventItem.ColorId)
@@ -160,10 +158,10 @@ public class GoogleCalendarService(IConfiguration configuration)
             Location = eventItem.Location,
             Start = eventItem.IsAllDay
                 ? new EventDateTime { Date = eventItem.StartDateTime.ToString("yyyy-MM-dd") }
-                : new EventDateTime { DateTime = eventItem.StartDateTime },
+                : new EventDateTime { DateTimeDateTimeOffset = eventItem.StartDateTime },
             End = eventItem.IsAllDay
                 ? new EventDateTime { Date = eventItem.EndDateTime.ToString("yyyy-MM-dd") }
-                : new EventDateTime { DateTime = eventItem.EndDateTime }
+                : new EventDateTime { DateTimeDateTimeOffset = eventItem.EndDateTime }
         };
 
         var request = service.Events.Insert(newEvent, calendarId);
@@ -184,10 +182,10 @@ public class GoogleCalendarService(IConfiguration configuration)
         eventToUpdate.Location = eventItem.Location;
         eventToUpdate.Start = eventItem.IsAllDay
             ? new EventDateTime { Date = eventItem.StartDateTime.ToString("yyyy-MM-dd") }
-            : new EventDateTime { DateTime = eventItem.StartDateTime };
+            : new EventDateTime { DateTimeDateTimeOffset = eventItem.StartDateTime };
         eventToUpdate.End = eventItem.IsAllDay
             ? new EventDateTime { Date = eventItem.EndDateTime.ToString("yyyy-MM-dd") }
-            : new EventDateTime { DateTime = eventItem.EndDateTime };
+            : new EventDateTime { DateTimeDateTimeOffset = eventItem.EndDateTime };
 
         var request = service.Events.Update(eventToUpdate, calendarId, eventItem.EventId);
         await request.ExecuteAsync();
