@@ -14,13 +14,9 @@
 
   <ItemGroup>
     <Compile Remove="photos\**" />
-    <Compile Remove="wwwroot\NewFolder\**" />
     <Content Remove="photos\**" />
-    <Content Remove="wwwroot\NewFolder\**" />
     <EmbeddedResource Remove="photos\**" />
-    <EmbeddedResource Remove="wwwroot\NewFolder\**" />
     <None Remove="photos\**" />
-    <None Remove="wwwroot\NewFolder\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,24 +29,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\assets\css\.DS_Store" />
-    <None Include="wwwroot\assets\images\.DS_Store" />
-    <None Include="wwwroot\assets\images\auth\.DS_Store" />
-    <None Include="wwwroot\assets\images\cards\.DS_Store" />
-    <None Include="wwwroot\assets\images\cards\card-style-1\.DS_Store" />
-    <None Include="wwwroot\assets\images\cards\card-style-2\.DS_Store" />
-    <None Include="wwwroot\assets\images\cards\card-style-4\.DS_Store" />
-    <None Include="wwwroot\assets\images\cards\card-style-5\.DS_Store" />
-    <None Include="wwwroot\assets\images\cards\card-style-6\.DS_Store" />
-    <None Include="wwwroot\assets\images\clients\.DS_Store" />
-    <None Include="wwwroot\assets\images\invoice\.DS_Store" />
-    <None Include="wwwroot\assets\images\lead\.DS_Store" />
-    <None Include="wwwroot\assets\images\logo\.DS_Store" />
-    <None Include="wwwroot\assets\images\modals\.DS_Store" />
-    <None Include="wwwroot\assets\images\profile\.DS_Store" />
-    <None Include="wwwroot\assets\images\projects\.DS_Store" />
-    <None Include="wwwroot\assets\scss\.DS_Store" />
-    <None Include="wwwroot\assets\scss\typography\.DS_Store" />
+    <Folder Include="Database\Interfaces\" />
+    <Folder Include="Database\Entities\" />
   </ItemGroup>
 
 </Project>

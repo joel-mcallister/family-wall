@@ -1,36 +1,4 @@
-﻿
-/* PSEUDOCODE / PLAN:
-    - Input: value (could be Date object, ISO string, timestamp, or falsy)
-    - If value is falsy (null/undefined/empty), return empty string.
-    - Attempt to construct a Date object from value.
-    - If Date is invalid, return the original value coerced to string.
-    - If valid, return only the date portion (no time).
-        - Use toLocaleDateString with explicit options: year numeric, month long, day numeric.
-        - Use undefined locale to respect user's environment.
-    - Provide a safe fallback to toLocaleDateString() if options cause issues.
-*/
-
-/* Replaced function: formatDateTime - returns date only (no time) */
-function formatDateTime(value) {
-    if (!value) {
-        return '';
-    }
-
-    var d = new Date(value);
-    if (isNaN(d.getTime())) {
-        return String(value);
-    }
-
-    try {
-        // Return date-only string according to user's locale, e.g. "December 31, 2025"
-        return d.toLocaleDateString(undefined, { year: 'numeric', month: 'numeric', day: 'numeric' });
-    } catch (err) {
-        // Fallback: basic locale date string
-        return d.toLocaleDateString();
-    }
-}
-
-function formatCategories(cat) {
+﻿function formatCategories(cat) {
     if (!cat) {
         return '';
     }

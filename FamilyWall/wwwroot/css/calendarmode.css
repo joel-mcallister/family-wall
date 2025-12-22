@@ -1,0 +1,204 @@
+﻿/* Layout: split viewport vertically into two equal halves */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* Full-viewport background layer at 50% opacity (does not affect children) */
+#backgroundLayer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 0.15;
+    pointer-events: none;
+}
+
+/* Foreground container centers the image */
+#foregroundLayer {
+    height: 50vh !important;
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+/* Foreground image: only opacity transitions */
+#randomImage {
+    display: block;
+    max-width: 100vw;
+    max-height: 100vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.4);
+    transition: opacity 0.45s ease-in-out;
+    opacity: 1;
+    border-radius: 0.5rem;
+    pointer-events: auto; /* allow clicks to trigger refresh on body */
+    cursor: pointer;
+}
+
+    /* When fading out to black, foreground image becomes transparent */
+    #randomImage.fading {
+        opacity: 0;
+    }
+
+/* Full-viewport black overlay used to fade to black and back */
+#blackOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    background: #000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.45s ease-in-out;
+}
+
+    /* Visible state for overlay (fully black) */
+    #blackOverlay.visible {
+        opacity: 1;
+    }
+
+/* Ensure body/background behind container is black */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: #000;
+}
+
+/* Ensure clickable area spans entire page */
+#randomImageBody {
+    position: relative;
+    min-height: 100vh;
+    width: 100%;
+}
+
+
+/* Root container takes full viewport and arranges children in a column */
+#body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* full viewport height */
+    box-sizing: border-box;
+}
+
+/* Top half: photo area fixed to 50% of viewport */
+#photo {
+    flex: 0 0 50vh; /* do not grow or shrink; occupy 50vh */
+    position: relative;
+    overflow: hidden; /* keep image contained */
+    box-sizing: border-box;
+}
+
+/* Ensure slideshow layers fill the photo area */
+#randomImageBody,
+#backgroundLayer,
+#foregroundLayer,
+#blackOverlay {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+}
+
+/* Foreground image should cover the container */
+#foregroundLayer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+#randomImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* preserve aspect ratio, cover whole area */
+    display: block;
+    border-radius: 0; /* keep consistent if rounding elsewhere is undesired in full-bleed */
+}
+
+/* Optional overlay and background z-index ordering */
+#backgroundLayer {
+    z-index: 0;
+}
+
+#blackOverlay {
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Bottom half: calendar area fixed to 50% of viewport */
+#cal {
+    flex: 0 0 50vh; /* occupy bottom 50vh */
+    
+    box-sizing: border-box;
+    padding: 0.5rem; /* small padding so content isn't flush to edges */
+}
+
+    /* Ensure card grows to fill the calendar area */
+    #cal .calendar-card {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+    }
+
+/* Make the calendar element fill the card body */
+#calendar {
+    flex: 1 1 auto; /* take remaining space inside card */
+    width: 100%;
+    height: 100%; /* allow FullCalendar or our CSS to size it */
+    min-height: 0; /* allow flex child to shrink if necessary */
+    box-sizing: border-box;
+}
+
+/* If your .card-style sets a fixed height, ensure it doesn't override automatic sizing.
+           The more specific selector above (#cal .calendar-card) forces the card to match the bottom half. */
+.card-style {
+    /* no fixed height here */
+}
+
+.icon {
+    padding-right: 10px !important;
+    align-items: stretch !important;
+}
+
+.parallax-slider {
+    transition: opacity 0.4s ease-in;
+    -webkit-transition: opacity 0.4s ease-in;
+    -moz-transition: opacity 0.4s ease-in;
+    -ms-transition: opacity 0.4s ease-in;
+    -o-transition: opacity 0.4s ease-in;
+    opacity: 1;
+}
+
+.transitioning-src {
+    transition: opacity 0.4s ease-out;
+    -webkit-transition: opacity 0.4s ease-out;
+    -moz-transition: opacity 0.4s ease-out;
+    -ms-transition: opacity 0.4s ease-out;
+    -o-transition: opacity 0.4s ease-out;
+    opacity: 0;
+}
+
+.section .container-fluid {
+    padding: 0 !important;
+}
+
+#cal {
+    background-color: white;
+}
+
+.main-wrapper { 
+    background-color: white;
+}

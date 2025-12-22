@@ -7,10 +7,6 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Calendar | TailAdmin - Tailwind CSS Admin Dashboard Template</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <link rel="stylesheet" href="assets/css/lineicons.css" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" href="assets/css/materialdesignicons.min.css" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet" href="assets/css/fullcalendar.css" />
-    <link rel="stylesheet" href="assets/css/main.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         /* Hide sidebar by default on load. Toggle by adding/removing .sidebar-hidden on the aside and overlay. */
@@ -43,55 +39,53 @@
         <div class="spinner"></div>
     </div>
     <!-- ======== Preloader =========== -->
-    <!-- ======== sidebar-nav start =========== -->
-    <aside class="sidebar-nav-wrapper sidebar-hidden">
-       
-    </aside>
     <div class="overlay"></div>
     <!-- ======== sidebar-nav end =========== -->
     <!-- ======== main-wrapper start =========== -->
-    <main class="main-wrapper">
-        <!-- ========== header start ========== -->
-        <header class="header">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-4">
-                        <h1>
-                            <img src="~/logo.webp" style="height: 25px; margin-bottom: 10px;"/>
-                            McAllister Family Wall
-                        </h1>
-                    </div>
-                    <div class="col-4">
-                        <div class="header-center">
-                            <div id="liveDateTime" class="text-center" aria-live="polite" aria-atomic="true" style="font-size: 1.5rem;"></div>
-                        </div>
-                    </div>
-                    <div class="col-4">
-                        <div class="header-right">
-                            <a asp-page="Index" class="btn">
-                                <i class="lni lni-calendar"></i>
-                            </a>
-                            <a asp-page="Slideshow" class="btn">
-                                <i class="lni lni-image"></i>
-                            </a>
-                            <a asp-page="Sync" class="btn">
-                                <i class="lni lni-cloud-sync"></i>
-                            </a>
-                            <a asp-page="?" class="btn">
-                                <i class="lni lni-reload"></i>
-                            </a>
-                        </div>
+    <nav class="navbar sticky-top navbar-light bg-light">
+        <div class="container-fluid">
+            <div class="row w-100">
+                <div class="col-4">
+                    <h1>
+                        <img src="~/logo.webp" style="height: 25px; margin-bottom: 10px;"/>
+                        McAllister Family Wall
+                    </h1>
+                </div>
+                <div class="col-4">
+                    <div id="liveDateTime" class="text-center" aria-live="polite" aria-atomic="true" style="font-size: 1.5rem;"></div>
+                </div>
+                <div class="col-4 position-relative">
+                    <div class="position-absolute top-50 end-0 translate-middle-y">
+                        <a asp-page="Index" class="btn">
+                            <i class="fa-regular fa-calendar-days"></i>
+                        </a>
+                        <a asp-page="Slideshow" class="btn">
+                            <i class="fa-solid fa-photo-film"></i>
+                        </a>
+                        <a asp-page="CalendarMode" class="btn">
+                            <i class="fa-regular fa-newspaper"></i>
+                        </a>
+                        <a asp-page="Sync" class="btn">
+                            <i class="fa-solid fa-wifi"></i>
+                        </a>
+                        <a asp-page="?" class="btn">
+                            <i class="fa-solid fa-rotate"></i>
+                        </a>
+                        <a asp-page="Configure" class="btn">
+                            <i class="fa-solid fa-sliders"></i>
+                        </a>
                     </div>
                 </div>
             </div>
-        </header>
-        <!-- ========== header end ========== -->
+        </div>
+    </nav>
+    <main>
         <!-- ========== section start ========== -->
         <section class="section">
-        <div class="container-fluid">
-        @RenderBody()
+            <div class="container-fluid">
+                @RenderBody()
 
-        </div>
+            </div>
             <!-- end container -->
         </section>
         <!-- ========== section end ========== -->

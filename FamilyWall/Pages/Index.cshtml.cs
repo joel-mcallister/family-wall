@@ -1,24 +1,25 @@
-using System.ComponentModel.DataAnnotations;
+using FamilyWall.Database.Context;
 using FamilyWall.Models;
 using FamilyWall.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Identity.Web;
+using System.ComponentModel.DataAnnotations;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace FamilyWall.Pages;
 
 [Authorize]
-[AuthorizeForScopes(Scopes = new[] { "Files.Read", "Tasks.ReadWrite" })]
+[AuthorizeForScopes(Scopes = ["Files.Read", "Tasks.ReadWrite"])]
 public class IndexModel(
     IMemoryCache cache,
     IWebHostEnvironment env,
     GoogleCalendarService calendarService, 
-    NwsWeatherClient client, 
-    OneDriveRandomImageService oneDriveRandomImageService,
+    NwsWeatherClient client,
+    IFamilyWallDataContext db,
     IHttpClientFactory httpClientFactory,
     ITokenAcquisition tokenAcquisition,
     IConfiguration configuration,
@@ -28,6 +29,8 @@ public class IndexModel(
     private readonly JsonSerializerOptions _json = new(JsonSerializerDefaults.Web);
 
     private readonly Random _random = Random.Shared;
+
+    public FamilyWallConfiguration? Configuration = db.Configuration.FindOne(x => x.Id == 1);
 
     [BindProperty]
     [DataType(DataType.DateTime)]

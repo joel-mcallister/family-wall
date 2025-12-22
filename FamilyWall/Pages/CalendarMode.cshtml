@@ -1,0 +1,64 @@
+﻿@page
+@model FamilyWall.Pages.CalendarModeModel
+@{
+}
+@* PSEUDOCODE / PLAN
+   - Make the page root container (#body) a column flexbox occupying full viewport height.
+   - Allocate the top 50% of the viewport to the photo area (#photo) and the bottom 50% to the calendar area (#cal).
+   - Use fixed flex-basis (50vh) to ensure halves, with no shrinking.
+   - Ensure inner photo layers (#randomImageBody, #foregroundLayer, #backgroundLayer, #blackOverlay) fill the photo area (height:100%).
+   - Make the slideshow image (#randomImage) cover the container using object-fit: cover to preserve aspect ratio.
+   - Ensure the calendar card and #calendar fill the bottom half: set .calendar-card and #calendar to height:100% and allow overflow scrolling inside the calendar area if content is larger.
+   - Preserve existing FullCalendar-specific rules (min-height etc.) but override where necessary with more specific selectors.
+   - Keep existing CSS rules for transitions and other components intact.
+*@
+
+@section Head
+{
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css' rel='stylesheet' />
+
+    <link rel="stylesheet" href="~/css/calendarmode.css"/>
+}
+
+@section Scripts
+{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.19/index.global.min.js" integrity="sha512-oVdWXnAvkKCjV7eICa4Hbmdrtg2z8hvsQ6lC1/GRQck7hexUrp7fCJZVU/unJviMXCJdpT1rzUpxVKVKP8IcCA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="~/js/helpers.js"></script>
+    <script src="~/js/calendar.js"></script>
+    <script src="~/js/randomImage.js"></script>
+    <script src="~/js/slideshow.js"></script>
+}
+<div id="body">
+    <div id="photo">
+        <div id="randomImageBody" style="position: relative;">
+            <div id="backgroundLayer" aria-hidden="true"></div>
+
+            <div id="foregroundLayer" role="img" aria-label="Slideshow image container">
+                <img id="randomImage" class="rounded" alt="Slideshow image" />
+            </div>
+
+            <div id="blackOverlay" aria-hidden="true"></div>
+
+            <div id="cornerMessage"
+                 aria-hidden="true"
+                 style="position: absolute; top: 1rem; right: 1rem; background-color: rgba(0,0,0,0.5); color: #ffffff; padding: 0.4rem 0.6rem; border-radius: 4px; z-index: 1000; font-size: 0.9rem;">
+            </div>
+            <div id="weather" style="position: absolute; top: 45vh; left: 1rem; background-color:  rgba(0,0,0,0.5); color: white; z-index: 1000; font-size: 2rem; padding: 0.4rem 0.6rem; border-radius: 4px;">
+                Hi
+            </div>
+        </div>
+    </div>
+
+    <div id="cal">
+        <button type="button" class="btn btn-primary" style="display: none" data-bs-toggle="modal" data-bs-target="#eventMaintModal">
+            New Event
+        </button>
+        <div class="row mt-25" style="height:100%;">
+            <div class="col-lg-12" style="height:100%;">
+                <div class="card-style calendar-card mb-30">
+                    <div id="calendar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

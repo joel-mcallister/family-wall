@@ -1,18 +1,4 @@
 ﻿// Helper: convert degrees to 16-point compass abbreviation
-function degreesToCompass(deg) {
-    if (deg === null || deg === undefined || isNaN(deg)) return '';
-    let d = deg % 360;
-    if (d < 0) d += 360;
-    const dirs = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
-    const index = Math.round(d / 22.5) % 16;
-    return dirs[index];
-}
-
-function formatNumber(value, decimals) {
-    if (value === null || value === undefined || isNaN(value)) return '--';
-    return Number(value).toFixed(decimals);
-}
-
 function getCurrentForecast() {
     const currentIcon = document.getElementById('currentIcon');
     const currentTemp = document.getElementById('currentTemp');
@@ -135,7 +121,7 @@ function getCurrentForecast() {
                         const col = document.createElement('div');
                         col.className = 'col-6';
                         col.innerHTML = `
-                                    <div class="card mb-30" id="f${p.PeriodName || p.periodName || ''}">
+                                    <div class="card card-style" id="f${p.PeriodName || p.periodName || ''}">
                                         <div class="row g-0">
                                             <div class="col-2" style="text-align: center; padding-left: 7px;">
                                                 <img src="${icon || ''}" alt="${shortForecast || ''}" style="max-width: 48px; max-height: 48px;" class="rounded mt-25"/>

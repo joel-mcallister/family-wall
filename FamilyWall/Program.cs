@@ -5,6 +5,7 @@ using Microsoft.Identity.Web.UI;
 using System;
 using System.Net.Http.Headers;
 using System.Net.Mime;
+using FamilyWall.Database.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,7 +29,7 @@ builder.Services.AddRazorPages().AddMicrosoftIdentityUI();
 string userAgent = builder.Configuration["WallSettings:UserAgent"] ?? "FamilyWall/1.0";
 
 builder.Services.AddSingleton<GoogleCalendarService>();
-builder.Services.AddSingleton<OneDriveRandomImageService>();
+builder.Services.AddSingleton<OneDriveImageService>();
 builder.Services.AddSingleton<NwsWeatherClient>();
 
 builder.Services.AddHttpClient("nws", c =>
@@ -47,6 +48,8 @@ builder.Services.AddHttpClient("microsoft-graph", c =>
     c.DefaultRequestHeaders.UserAgent.ParseAdd(userAgent);
     c.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(MediaTypeNames.Application.Json));
 });
+
+builder.Services.AddSingleton<IFamilyWallDataContext>(new FamilyWallDbContext("Filename=family-wall.db;Connection=shared"));
 
 // Configure Kestrel for local access
 builder.WebHost.ConfigureKestrel(options =>

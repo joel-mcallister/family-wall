@@ -2,7 +2,7 @@
     var calendarEl = document.getElementById('calendar');
 
     var calendar = new FullCalendar.Calendar(calendarEl, {
-        themeSysten: 'boostrap5',
+        themeSystem: 'bootstrap5',
         initialView: 'timeGridWeek',
         slotMinTime: '06:30:00',
         firstDay: 0,

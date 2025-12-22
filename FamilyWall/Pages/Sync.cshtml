@@ -122,6 +122,8 @@ else
                     }
                     // re-enable buttons after auto-run so user can retry individual items if needed
                     buttons.forEach(function (b) { b.disabled = false; });
+                    // After processing the whole list, redirect to the home page.
+                    window.location.href = '/';
                 })();
             });
         })();

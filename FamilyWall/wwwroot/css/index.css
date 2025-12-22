@@ -1,0 +1,19 @@
+﻿body {
+ background-color: green;
+ background-image: url('/img/backgrounds/summer.png');
+ background-position: center;
+ background-size: cover;
+ background-repeat: no-repeat;
+}
+
+.row-style {
+    margin: 10px;
+}
+
+.card-style {
+    margin: 5px;
+    padding: 10px;
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.4);
+}
