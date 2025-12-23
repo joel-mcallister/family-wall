@@ -6,6 +6,7 @@ using System;
 using System.Net.Http.Headers;
 using System.Net.Mime;
 using FamilyWall.Database.Context;
+using FamilyWall.Database.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 

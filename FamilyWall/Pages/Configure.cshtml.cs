@@ -1,4 +1,5 @@
-using FamilyWall.Database.Context;
+using FamilyWall.Database.Entities;
+using FamilyWall.Database.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;

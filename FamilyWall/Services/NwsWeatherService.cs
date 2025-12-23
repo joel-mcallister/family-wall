@@ -1,5 +1,6 @@
 ﻿using FamilyWall.Models;
 using System.Text.Json;
+using static System.Net.WebRequestMethods;
 
 namespace FamilyWall.Services;
 
@@ -49,14 +50,12 @@ public sealed class NwsWeatherClient(
         return nwsForecastResponse;
     }
 
-    public async Task<NationalWeatherServiceObservation?> GetStationObservationAsync(
+    private async Task<NationalWeatherServiceObservation?> GetObservationFromStation(string stationId,
         CancellationToken ct = default)
     {
-        using var http = httpClientFactory.CreateClient("nws");
-        var stationId = configuration["NationalWeatherService:WeatherStationId"] ?? "1296W";
         var url = $"stations/{stationId}/observations/latest";
         using var req = new HttpRequestMessage(HttpMethod.Get, url);
-        
+        using var http = httpClientFactory.CreateClient("nws");
         using var resp = await http.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct);
 
         // Helpful error body for troubleshooting (rate limits, etc.)
@@ -107,5 +106,23 @@ public sealed class NwsWeatherClient(
         }
 
         return result;
+    }
+
+    public async Task<NationalWeatherServiceObservation?> GetObservationAsync(
+        CancellationToken ct = default)
+    {
+        var stationIds = (configuration["WallSettings:NationalWeatherService:WeatherStationId"] ?? "1296W").Split(',');
+
+        foreach (var stationId in stationIds)
+        {
+            var results = await GetObservationFromStation(stationId, ct);
+
+            if (results?.Properties?.Temperature?.Value.HasValue == true)
+            {
+                return results;
+            }
+        }
+
+        return null;
     }
 }

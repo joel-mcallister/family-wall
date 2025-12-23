@@ -1,4 +1,4 @@
-using FamilyWall.Database.Context;
+using FamilyWall.Database.Interfaces;
 using FamilyWall.Models;
 using FamilyWall.Services;
 using Microsoft.AspNetCore.Authorization;

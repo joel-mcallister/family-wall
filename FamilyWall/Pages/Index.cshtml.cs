@@ -1,4 +1,5 @@
-using FamilyWall.Database.Context;
+using FamilyWall.Database.Entities;
+using FamilyWall.Database.Interfaces;
 using FamilyWall.Models;
 using FamilyWall.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -99,7 +100,7 @@ public class IndexModel(
         try
         {
             NationalWeatherServiceForecastResponse? forecast = await client.GetGridpointForecastAsync(CancellationToken.None);
-            NationalWeatherServiceObservation? observation = await client.GetStationObservationAsync(CancellationToken.None);
+            NationalWeatherServiceObservation? observation = await client.GetObservationAsync(CancellationToken.None);
 
             forecast ??= new NationalWeatherServiceForecastResponse();
             forecast.Observation = observation;
@@ -117,7 +118,7 @@ public class IndexModel(
     {
         try
         {
-            var observation = await client.GetStationObservationAsync(CancellationToken.None);
+            var observation = await client.GetObservationAsync(CancellationToken.None);
             return new JsonResult(observation);
         }
         catch (Exception ex)

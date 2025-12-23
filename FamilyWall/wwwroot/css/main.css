@@ -1,0 +1,10 @@
+﻿body {
+    background-color: white;
+    background-image: url('/img/backgrounds/summer.png');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    font-family: 'Nunito', sans-serif;
+    min-height: 2560px;
+    min-width: 1440px;
+}
