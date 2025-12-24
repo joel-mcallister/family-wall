@@ -56,6 +56,20 @@ public class IndexModel(
     [BindProperty]
     public required bool AllDay { get; set; }
 
+    [BindProperty]
+    [Display(Name = "To Do item")]
+    public required string ToDoTitle { get; set; }
+
+
+    [BindProperty]
+    public string? Category { get; set; }
+
+    [BindProperty]
+    [Display(Name = "Due Date")]
+    [DataType(DataType.Date)]
+    [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+    public DateOnly? DueDate { get; set; }
+
     public async Task<IActionResult> OnGetCalendarDelete(string id)
     {
         await calendarService.DeleteEventAsync(id);
@@ -256,7 +270,11 @@ public class IndexModel(
         //   - find first mapping where any keyword appears in the item title (case-insensitive)
         //   - set item.Icon to mapping.Icon if found
         //   - otherwise set item.Icon to default "fa-solid fa-box-open"
-        var mappings = configuration.GetSection("WallSettings").GetSection("ToDoIconMappings").Get<List<ToDoIconMapping>>() ?? new List<ToDoIconMapping>();
+        var mappings = db.TaskIconMappings.FindAll().Select(x => new ToDoIconMapping
+        {
+            Icon = x.Icon,
+            Keywords = x.Keywords.ToArray()
+        });
 
         foreach (ToDoItemModel item in toDoItemModels)
         {
@@ -352,5 +370,154 @@ public class IndexModel(
     {
         public string? Icon { get; set; }
         public string[]? Keywords { get; set; }
+    }
+
+
+  
+    public async Task<IActionResult> OnGetToDoMarkDoneAsync(string id)
+    {
+        try
+        {
+            string listId = configuration["WallSettings:Microsoft:ToDoListId"] ?? throw new NullReferenceException("The 'WallSettings:Microsoft:ToDoListId' is null");
+            var hc = httpClientFactory.CreateClient();
+            hc.BaseAddress = new Uri("https://graph.microsoft.com/v1.0/");
+            var ct = CancellationToken.None;
+
+            string accessToken;
+            try
+            {
+                accessToken = await tokenAcquisition.GetAccessTokenForUserAsync(["Files.Read", "Tasks.ReadWrite"]);
+            }
+            catch (MicrosoftIdentityWebChallengeUserException ex)
+            {
+                logger.LogWarning($"Sending Challenge");
+                consentHandler.HandleException(ex);
+                return Challenge();
+            }
+
+            var patchPayload = JsonSerializer.Serialize(new { status = "completed" }, _json);
+            using var req = new HttpRequestMessage(new HttpMethod("PATCH"), $"me/todo/lists/{listId}/tasks/{id}")
+            {
+                Content = new StringContent(patchPayload, System.Text.Encoding.UTF8, "application/json")
+            };
+            req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var resp = await hc.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct);
+            resp.EnsureSuccessStatusCode();
+
+            return RedirectToPage("/Index");
+            //return new OkResult();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error marking ToDo item as done");
+            return new JsonResult(new { error = ex.Message }) { StatusCode = 500 };
+        }
+    }
+
+    public async Task<IActionResult> OnGetToDoDeleteAsync(string id)
+    {
+        try
+        {
+            string listId = configuration["WallSettings:Microsoft:ToDoListId"] ?? throw new NullReferenceException("The 'WallSettings:Microsoft:ToDoListId' is null");
+            var hc = httpClientFactory.CreateClient();
+            hc.BaseAddress = new Uri("https://graph.microsoft.com/v1.0/");
+            var ct = CancellationToken.None;
+
+            string accessToken;
+            try
+            {
+                accessToken = await tokenAcquisition.GetAccessTokenForUserAsync(["Files.Read", "Tasks.ReadWrite"]);
+            }
+            catch (MicrosoftIdentityWebChallengeUserException ex)
+            {
+                logger.LogWarning($"Sending Challenge");
+                consentHandler.HandleException(ex);
+                return Challenge();
+            }
+
+            using var req = new HttpRequestMessage(HttpMethod.Delete, $"me/todo/lists/{listId}/tasks/{id}");
+            req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var resp = await hc.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct);
+            resp.EnsureSuccessStatusCode();
+
+            return RedirectToPage("/Index");
+            // return new OkResult();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error deleting ToDo item");
+            return new JsonResult(new { error = ex.Message }) { StatusCode = 500 };
+        }
+    }
+
+    
+
+    public async Task<IActionResult> OnPostToDoAddAsync()
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(ToDoTitle))
+            {
+                return new BadRequestObjectResult(new { error = "Title is required" });
+            }
+
+            string listId = configuration["WallSettings:Microsoft:ToDoListId"] ?? throw new NullReferenceException("The 'WallSettings:Microsoft:ToDoListId' is null");
+            var hc = httpClientFactory.CreateClient();
+            hc.BaseAddress = new Uri("https://graph.microsoft.com/v1.0/");
+            var ct = CancellationToken.None;
+
+            string accessToken;
+            try
+            {
+                accessToken = await tokenAcquisition.GetAccessTokenForUserAsync(["Files.Read", "Tasks.ReadWrite"]);
+            }
+            catch (MicrosoftIdentityWebChallengeUserException ex)
+            {
+                logger.LogWarning("Sending Challenge");
+                consentHandler.HandleException(ex);
+                return Challenge();
+            }
+
+            // Build payload dynamically
+            var payload = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["title"] = ToDoTitle
+            };
+
+            if (!string.IsNullOrWhiteSpace(Category))
+            {
+                payload["categories"] = new[] { Category.Trim() };
+            }
+
+            if (DueDate.HasValue)
+            {
+                // Use parsedDueDate if parsed above; otherwise parse again defensively
+                payload["dueDateTime"] = new
+                {
+                    dateTime = DueDate.Value.ToDateTime(TimeOnly.MinValue).ToString("yyyy-MM-ddTHH:mm:ss"),
+                    timeZone = TimeZoneInfo.Local.Id
+                };
+            }
+
+            var payloadJson = JsonSerializer.Serialize(payload, _json);
+
+            using var req = new HttpRequestMessage(HttpMethod.Post, $"me/todo/lists/{listId}/tasks")
+            {
+                Content = new StringContent(payloadJson, System.Text.Encoding.UTF8, "application/json")
+            };
+            req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var resp = await hc.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct);
+            resp.EnsureSuccessStatusCode();
+
+            return RedirectToPage("/Index");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error adding ToDo item");
+            return new JsonResult(new { error = ex.Message }) { StatusCode = 500 };
+        }
     }
 }

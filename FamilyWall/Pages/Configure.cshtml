@@ -16,5 +16,31 @@
                 <button type="submit" class="btn btn-primary">Save</button>
             </div>
         </div>
+        
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">To Do Icons</h4>
+                <div class="mb-3">
+                    <label asp-for="IconName" class="form-label"></label>
+                    <input asp-for="IconName" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Icon" class="form-label"></label>
+                    <input asp-for="Icon" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Keywords" class="form-label"></label>
+                    <input asp-for="Keywords" class="form-control" />
+                </div>
+                @for (var index = 0; index < Model.TaskIconMappings.Count; index++)
+                {
+                    var item = Model.TaskIconMappings[index];
+                    <div>
+                        @item.Name - @string.Join(", ", item.Keywords)
+                    </div>
+                }
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </div>
     </form>
 </div>

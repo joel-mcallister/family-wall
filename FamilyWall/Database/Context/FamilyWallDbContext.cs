@@ -12,7 +12,7 @@ public class FamilyWallDbContext : IFamilyWallDataContext, IDisposable
         var mapper = BsonMapper.Global;
         mapper.Entity<FamilyWallConfiguration>().Id(x => x.Id);
         mapper.Entity<FamilyWallBackgrounds>().Id(x => x.FileName);
-        mapper.Entity<FamilyWallTaskIconMapping>().Id(x => x.Icon);
+        mapper.Entity<FamilyWallTaskIconMapping>().Id(x => x.Name);
         mapper.Entity<FamilyWallPhoto>().Id(x => x.FileName);
 
         _db = new LiteDatabase(connectionString, mapper);
@@ -25,7 +25,7 @@ public class FamilyWallDbContext : IFamilyWallDataContext, IDisposable
 
     public ILiteCollection<FamilyWallBackgrounds> Backgrounds => _db.GetCollection<FamilyWallBackgrounds>("backgrounds");
 
-    public ILiteCollection<FamilyWallTaskIconMapping> TaskIconMappings => _db.GetCollection<FamilyWallTaskIconMapping>("icon-mappings");
+    public ILiteCollection<FamilyWallTaskIconMapping> TaskIconMappings => _db.GetCollection<FamilyWallTaskIconMapping>("icon_mappings");
 
     public ILiteCollection<FamilyWallPhoto> Photos => _db.GetCollection<FamilyWallPhoto>("photos");
 

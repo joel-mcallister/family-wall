@@ -94,7 +94,7 @@ async function loadToDoList() {
 
                         // Create action dropdown as jQuery elements so it can be appended to the table row
                         var actionId = 'moreAction' + (id ? String(id) : String(Math.floor(Math.random() * 1000000)));
-
+                        /*
                         var $actionButton = $('<button />')
                             .addClass('more-btn ml-10 dropdown-toggle')
                             .attr({
@@ -103,17 +103,17 @@ async function loadToDoList() {
                                 'aria-expanded': 'false',
                                 type: 'button'
                             })
-                            .append($('<i />').addClass('lni lni-more-alt'));
+                            .append($('<i />').addClass('fa-solid fa-ellipsis-vertical'));
 
                         var $actionMenu = $('<ul />')
                             .addClass('dropdown-menu dropdown-menu-end')
                             .attr('aria-labelledby', actionId)
                             .append(
                                 $('<li />').addClass('dropdown-item').append(
-                                    $('<a />').attr('href', '#0').addClass('text-gray').text('Remove')
+                                    $('<a />').attr('href', '?handler=ToDoMarkDone&id=' + id).addClass('text-gray').text('Done')
                                 ),
                                 $('<li />').addClass('dropdown-item').append(
-                                    $('<a />').attr('href', '#0').addClass('text-gray').text('Edit')
+                                    $('<a />').attr('href', '?handler=ToDoDelete&id=' + id).addClass('text-gray').text('Remove')
                                 )
                             );
 
@@ -124,7 +124,11 @@ async function loadToDoList() {
                         var $tdActions = $('<td />')
                             .addClass('text-end')
                             .append($actionDiv);
+                            */
 
+                        var $todoDone = $('<a />').attr('href', '?handler=ToDoMarkDone&id=' + id).append($('<i />').addClass('fa-regular fa-circle-check'));
+
+                        var $tdActions = $('<td />').addClass('text-end').append($todoDone);
                         // Append the actions cell to the row (place at the end)
                         $tr.append($tdImage, $tdTitle, $tdCategories, $tdDue, $tdCreated, $tdActions);
 
