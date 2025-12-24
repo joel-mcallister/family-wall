@@ -27,6 +27,7 @@
     <script src="~/js/calendar.js"></script>
     <script src="~/js/randomImage.js"></script>
     <script src="~/js/slideshow.js"></script>
+    <script src="~/js/calendarmode.js"></script>
 }
 <div id="body">
     <div id="photo">
@@ -43,11 +44,16 @@
                  aria-hidden="true"
                  style="position: absolute; top: 1rem; right: 1rem; background-color: rgba(0,0,0,0.5); color: #ffffff; padding: 0.4rem 0.6rem; border-radius: 4px; z-index: 1000; font-size: 0.9rem;">
             </div>
-            <div id="weather" style="position: absolute; top: 45vh; left: 1rem; background-color:  rgba(0,0,0,0.5); color: white; z-index: 1000; font-size: 2rem; padding: 0.4rem 0.6rem; border-radius: 4px;">
-                Hi
+            <div id="weather" style="position: absolute; top: 31vh; left: 1rem; background-color:  rgba(0,0,0,0.5); color: white; z-index: 1000; font-size: 4rem; padding: 0.4rem 0.6rem; border-radius: 4px;">
+                <div>
+                <span id="currentIcon"></span> <span id="currentTemp"></span>
+            </div>
+            <div id="humidity" style="font-size: 2.0rem;"></div> 
+            <div id="windInfo" style="font-size: 2.0rem;"></div>
+            </div>
             </div>
         </div>
-    </div>
+    
 
     <div id="cal">
         <button type="button" class="btn btn-primary" style="display: none" data-bs-toggle="modal" data-bs-target="#eventMaintModal">

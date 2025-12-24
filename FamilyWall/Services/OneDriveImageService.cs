@@ -6,11 +6,15 @@ using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using FamilyWall.Database.Context;
+using FamilyWall.Database.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
+using SixLabors.ImageSharp.Formats.Webp;
 
 namespace FamilyWall.Services;
 
 public sealed class OneDriveImageService(
+    IFamilyWallDataContext db,
     IMemoryCache cache,
     IWebHostEnvironment env,
     IHttpClientFactory httpClientFactory, 
@@ -58,6 +62,20 @@ public sealed class OneDriveImageService(
         await using var fileStream = File.Create(filePath);
         await JsonSerializer.SerializeAsync(fileStream, page, jsonOptions, ct);
         await fileStream.FlushAsync(ct);
+
+        db.Photos.Upsert(new FamilyWallPhoto
+        {
+            FileName = $"{id}.webp",
+            Name = page.Name,
+            CreatedDateTime = page.CreatedDateTime,
+            WebUrl = page.WebUrl,
+            Photo = page.Photo,
+            Location = page.Location,
+            File = page.File,
+            FileSystemInfo = page.FileSystemInfo,
+            Id = page.Id,
+            Image = page.Image
+        });
     }
 
     public async Task<IActionResult> OnGetSyncPhoto(string id)
@@ -65,13 +83,12 @@ public sealed class OneDriveImageService(
         var photosFolder = Path.Combine(env.ContentRootPath, "photos");
         Directory.CreateDirectory(photosFolder);
 
-        var fileName = $"{id}.jpg";
+        var fileName = $"{id}.webp";
         var safeFileName = string.Join("_", fileName.Split(Path.GetInvalidFileNameChars()));
         var filePath = Path.Combine(photosFolder, safeFileName);
 
         if (!File.Exists(filePath))
         {
-
             var ct = CancellationToken.None;
 
             HttpClient hc = httpClientFactory.CreateClient("microsoft-graph");
@@ -80,6 +97,8 @@ public sealed class OneDriveImageService(
             using var req = new HttpRequestMessage(HttpMethod.Get, url);
             req.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AccessToken);
 
+            // const int maxWidth = 1440;
+            // const int maxHeight = 2560;
             const int maxWidth = 3840;
             const int maxHeight = 2160;
 
@@ -98,7 +117,6 @@ public sealed class OneDriveImageService(
             try
             {
                 Image<Rgba32>? image = null;
-                Stream? imageStreamToDispose = null;
 
                 try
                 {
@@ -121,11 +139,15 @@ public sealed class OneDriveImageService(
                             var convertedPath = await ConvertHeicToJpegWithMagickAsync(originalBuffer, ct);
                             if (convertedPath is not null && File.Exists(convertedPath))
                             {
-                                imageStreamToDispose = File.OpenRead(convertedPath);
+                                Stream? imageStreamToDispose = File.OpenRead(convertedPath);
                                 image = await Image.LoadAsync<Rgba32>(imageStreamToDispose, ct);
 
                                 // Delete the temporary converted file after loading
-                                try { imageStreamToDispose.Dispose(); File.Delete(convertedPath); imageStreamToDispose = null; } catch { /* best effort */ }
+                                try
+                                {
+                                    await imageStreamToDispose.DisposeAsync(); 
+                                    File.Delete(convertedPath);
+                                } catch { /* best effort */ }
                             }
                         }
                         catch (Exception ex)
@@ -158,12 +180,13 @@ public sealed class OneDriveImageService(
 
                         image.Mutate(x => x.Resize(newWidth, newHeight, KnownResamplers.Lanczos3));
                     }
-
-                    // Save as JPEG with reasonable quality
-                    var encoder = new JpegEncoder { Quality = 90 };
-
+                    
                     // Overwrite if exists
-                    await image.SaveAsJpegAsync(filePath, encoder, ct);
+                    await image.SaveAsWebpAsync(filePath, new WebpEncoder
+                    {
+                        Quality = 90,
+                        FileFormat = WebpFileFormatType.Lossy
+                    }, ct);
 
                     await SyncPhotoDetails(id);
 

@@ -1,4 +1,5 @@
-﻿using FamilyWall.Database.Entities;
+﻿using FamilyWall.Database.Context;
+using FamilyWall.Database.Entities;
 using LiteDB;
 
 namespace FamilyWall.Database.Interfaces;
@@ -10,4 +11,6 @@ public interface IFamilyWallDataContext
     ILiteCollection<FamilyWallBackgrounds> Backgrounds { get; }
 
     ILiteCollection<FamilyWallTaskIconMapping> TaskIconMappings { get; }
+
+    ILiteCollection<FamilyWallPhoto> Photos { get; }
 }

@@ -26,7 +26,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var p in Model.AllPhotos)
+            @foreach (var p in Model.AllPhotos.OrderBy(x => x.CreatedDateTime))
             {
                 // Expecting each item to have Id and FileName (adjust if your model uses different names)
                 var id = p.Id;

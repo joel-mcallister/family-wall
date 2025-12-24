@@ -2,7 +2,7 @@
 
 namespace FamilyWall.Models;
 
-public sealed class OneDriveItem
+public class OneDriveItem
 {
     public string? Id { get; set; }
     public string? Name { get; set; }

@@ -1,3 +1,4 @@
+using FamilyWall.Database.Entities;
 using FamilyWall.Database.Interfaces;
 using FamilyWall.Models;
 using FamilyWall.Services;
