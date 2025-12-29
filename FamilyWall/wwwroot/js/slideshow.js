@@ -1,11 +1,16 @@
-﻿function safeCssUrl(url) {
+﻿
+
+function safeCssUrl(url) {
     return "url('" + url.replace(/'/g, "\\'") + "')";
 }
 
 function applyBackground(url) {
+    $('body').css('background-image', 'none');
     $('#backgroundLayer').css('background-image', safeCssUrl(url));
 }
 
+window.imageId = '';
+window.file = '';
 function swapWithFade(url) {
     var $overlay = $('#blackOverlay');
     var $img = $('#randomImage');
@@ -44,6 +49,8 @@ function loadRandomImage() {
             if (!data || !data.url) throw new Error('Invalid image data');
 
             var url = data.url;
+            window.imageId = data.id;
+            window.file = data.url;
 
             // Preload the image first, then perform the fade-swap so black covers smoothly.
             var temp = new Image();
@@ -64,7 +71,7 @@ function loadRandomImage() {
                     corner.removeChild(corner.firstChild);
                 }
             }
-
+            
             if (data.taken) {
                 var dateTaken = $('<div />').text(data.taken);
                 $('#cornerMessage').show().append(dateTaken);
@@ -79,6 +86,8 @@ function loadRandomImage() {
 }
 
 $(function () {
+    $('#liveToast').hide();
+
     // Initial load: fetch and set background & foreground without visible flicker.
     fetch('./?handler=RandomImage', { cache: 'no-store' })
         .then(function (r) { if (!r.ok) throw new Error('Network'); return r.json(); })
@@ -110,4 +119,72 @@ $(function () {
                 loadRandomImage();
             });
         });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const rotateBtn = document.getElementById("rotateBtn");
+    const deleteBtn = document.getElementById("deleteBtn");
+    
+    rotateBtn.addEventListener("click", function () {
+        $('#toast-message').text('Roatating image...');
+        $('#liveToast').show();
+
+        fetch("/Slideshow?handler=Rotate&dir=right&file=" + $('#randomImage').attr('src'), {
+            method: "GET"
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+               
+            })
+            .then(data => {
+                $('#toast-message').text('Image rotated!');
+                applyBackground($('#randomImage').attr('src'));
+                $('#randomImage').attr('src', $('#randomImage').attr('src'));
+
+                setTimeout(() => {
+                    $('#liveToast').hide();
+                }, 5000);
+            })
+            .catch((error) => {
+                $('#toast-message').text('Error');
+                
+                setTimeout(() => {
+                    $('#liveToast').hide();
+                }, 5000);
+                console.error("There was a problem with the fetch operation:", error);
+            });
+    });
+
+    deleteBtn.addEventListener("click", function () {
+        if (confirm("Are you sure you want to delete this image?")) {
+            $('#toast-message').text('Deleting image...');
+            $('#liveToast').show();
+
+            fetch("/Slideshow?handler=Delete&file=" + $('#randomImage').attr('src'), {
+                method: "GET"
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                })
+                .then(data => {
+                    $('#toast-message').text('Deleted');
+
+                    setTimeout(() => {
+                        $('#liveToast').hide();
+                    }, 5000);
+                })
+                .catch((error) => {
+                    $('#toast-message').text('Error Deleting');
+
+                    setTimeout(() => {
+                        $('#liveToast').hide();
+                    }, 5000);
+                    console.error("There was a problem with the fetch operation:", error);
+                });
+        }
+    });
 });

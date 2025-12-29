@@ -5,7 +5,7 @@
         themeSystem: 'bootstrap5',
         initialView: 'timeGridWeek',
         slotMinTime: '06:30:00',
-        firstDay: 0,
+        firstDay: (new Date().getDay()),
         headerToolbar: {
             left: 'prev,next today newEvent',
             center: 'title',

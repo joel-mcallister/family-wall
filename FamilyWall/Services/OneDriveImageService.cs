@@ -9,7 +9,6 @@ using System.Text.Json;
 using FamilyWall.Database.Context;
 using FamilyWall.Database.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
-using SixLabors.ImageSharp.Formats.Webp;
 
 namespace FamilyWall.Services;
 
@@ -65,7 +64,7 @@ public sealed class OneDriveImageService(
 
         db.Photos.Upsert(new FamilyWallPhoto
         {
-            FileName = $"{id}.webp",
+            FileName = $"{id}.jpg",
             Name = page.Name,
             CreatedDateTime = page.CreatedDateTime,
             WebUrl = page.WebUrl,
@@ -83,7 +82,7 @@ public sealed class OneDriveImageService(
         var photosFolder = Path.Combine(env.ContentRootPath, "photos");
         Directory.CreateDirectory(photosFolder);
 
-        var fileName = $"{id}.webp";
+        var fileName = $"{id}.jpg";
         var safeFileName = string.Join("_", fileName.Split(Path.GetInvalidFileNameChars()));
         var filePath = Path.Combine(photosFolder, safeFileName);
 
@@ -182,10 +181,9 @@ public sealed class OneDriveImageService(
                     }
                     
                     // Overwrite if exists
-                    await image.SaveAsWebpAsync(filePath, new WebpEncoder
+                    await image.SaveAsJpegAsync(filePath, new JpegEncoder
                     {
-                        Quality = 90,
-                        FileFormat = WebpFileFormatType.Lossy
+                        Quality = 90
                     }, ct);
 
                     await SyncPhotoDetails(id);

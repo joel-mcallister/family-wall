@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
@@ -8,9 +8,47 @@
     <title>Calendar | TailAdmin - Tailwind CSS Admin Dashboard Template</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/css/bootstrap.min.css" integrity="sha512-2bBQCjcnw658Lho4nlXJcc6WkV/UxpE/sAokbXPxQNGqmNdQrWqtw26Ns9kFF/yG792pKR1Sx8/Y1Lf1XN4GKA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/simple-keyboard/3.8.84/css/index.min.css" integrity="sha512-yslRNeHTTBGku15O4USRA0ys23mt+21emU0vHqp0x/SWguJOgQD5/BymyvUX57fLHo15zc29Ai8vGRZIyxuusg==" crossorigin="anonymous" referrerpolicy="no-referrer" />    
+    <link rel="stylesheet" href="https://unpkg.com/simple-keyboard@latest/build/css/index.css">
     <link rel="stylesheet" href="~/css/main.css"/>
     @await RenderSectionAsync("Head", false)
     <link href="@Url.Page("/Configure", "MainCss")" rel="stylesheet" />
+    <style>
+        /* Simple on-page styling to ensure the virtual keyboard sits above other content on touch screens. */
+        /* Raise z-index above Bootstrap modal/backdrop and make keyboard fixed so we can position it near inputs (including inside modals). */
+        .simple-keyboard {
+            z-index: 2000; /* higher than Bootstrap modal (1060) */
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            transition: transform 0.12s ease, opacity 0.12s ease;
+            will-change: transform;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        .virtual-keyboard-hidden {
+            display: none !important;
+        }
+
+        /* Close button for virtual keyboard */
+        .simple-keyboard .vk-close {
+            position: absolute;
+            top: -34px;
+            right: 8px;
+            z-index: 2100;
+            background: rgba(0,0,0,0.6);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 16px;
+            line-height: 1;
+            cursor: pointer;
+        }
+        .simple-keyboard .vk-close:focus {
+            outline: 2px solid #fff;
+        }
+    </style>
 </head>
 <body>
     <!-- ======== Preloader =========== -->
@@ -31,7 +69,7 @@
                     </h1>
                 </div>
                 <div class="col-4">
-                    <div id="liveDateTime" class="text-center" aria-live="polite" aria-atomic="true" style="font-size: 1.5rem;"></div>
+                    <div id="liveDateTime" class="text-center" aria-live="polite" aria-atomic="true" style="font-size: 1.5rem; padding-top: 9px;"></div>
                 </div>
                 <div class="col-4 position-relative">
                     <div class="position-absolute top-50 end-0 translate-middle-y">
@@ -87,54 +125,464 @@
             </div>
             <!-- end container -->
         </footer>
-        <!-- ========== footer end =========== -->
+        <!-- ========== footer end ========== -->
     </main>
     <!-- ======== main-wrapper end =========== -->
 
-            
-    <script>
-        // Wire up a basic toggle that removes the "sidebar-hidden" class when the Menu button is clicked.
-        // This is intentionally lightweight so it doesn't conflict with existing main.js behavior.
-        (function () {
-            var aside = document.querySelector('.sidebar-nav-wrapper');
-            var overlay = document.querySelector('.overlay');
-            var toggle = document.getElementById('menu-toggle');
+    <!-- Virtual keyboard container includes a close button -->
+    <div class="simple-keyboard virtual-keyboard-hidden" aria-hidden="true">
+        <button type="button" class="vk-close" aria-label="Close virtual keyboard">✕</button>
+    </div>
 
-            function showSidebar() {
-                aside.classList.remove('sidebar-hidden');
-                overlay.classList.remove('sidebar-hidden');
-            }
-
-            function hideSidebar() {
-                aside.classList.add('sidebar-hidden');
-                overlay.classList.add('sidebar-hidden');
-            }
-
-            if (toggle) {
-                toggle.addEventListener('click', function (e) {
-                    if (aside.classList.contains('sidebar-hidden')) {
-                        showSidebar();
-                    } else {
-                        hideSidebar();
-                    }
-                });
-            }
-
-            if (overlay) {
-                overlay.addEventListener('click', hideSidebar);
-            }
-
-            // keep sidebar hidden on load (already set via markup), but ensure no flash if script runs later
-            if (aside && !aside.classList.contains('sidebar-hidden')) {
-                hideSidebar();
-            }
-        })();
-    </script>
+    <!-- NOTE: Custom virtual keyboard initialization moved below library includes to ensure the library is available when we initialize. -->
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/js/all.min.js" integrity="sha512-6BTOlkauINO65nLhXhthZMtepgJSghyimIalb+crKRPhvhmsCdnIuGcVbR5/aQY2A+260iC1OPy1oCdB6pSSwQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/js/bootstrap.min.js" integrity="sha512-nKXmKvJyiGQy343jatQlzDprflyB5c+tKCzGP3Uq67v+lmzfnZUi/ZT+fc6ITZfSC5HhaBKUIvr/nTLCV+7F+Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://unpkg.com/simple-keyboard@latest/build/index.js"></script>
+
+    <script>
+        
+        (function () {
+                    window.addEventListener('load', function () {
+                var initAttempt = 0;
+                var maxAttempts = 60; // ~3 seconds at 50ms interval
+
+                function tryInit() {
+                    var SimpleKeyboardLib = window.SimpleKeyboard && (window.SimpleKeyboard.default || window.SimpleKeyboard);
+                    if (!SimpleKeyboardLib) {
+                        initAttempt++;
+                        if (initAttempt < maxAttempts) {
+                            setTimeout(tryInit, 50);
+                        } else {
+                            console.warn("simple-keyboard library not found after waiting.");
+                        }
+                        return;
+                    }
+
+                    var keyboardContainer = document.querySelector('.simple-keyboard');
+                    var closeBtn = keyboardContainer ? keyboardContainer.querySelector('.vk-close') : null;
+
+                    var keyboardInstance = null;
+                    var activeElement = null;
+                    var inputListener = null;
+                    var hideTimeout = null;
+                    var isShift = false;
+                    var POSITION_OFFSET = 8; // px
+
+                    // Track keyboard's last known value and the selection at the time of key press
+                    var lastKeyboardValue = '';
+                    var lastSelectionRange = null;
+
+                    // Helper: determine if an element should trigger the virtual keyboard
+                    function isVirtualEditable(el) {
+                        if (!el) return false;
+                        if (el.classList && el.classList.contains('no-virtual-keyboard')) return false;
+                        if (el.hasAttribute && (el.getAttribute('readonly') !== null || el.getAttribute('disabled') !== null)) return false;
+                        var tag = (el.tagName || '').toLowerCase();
+                        if (tag === 'input' || tag === 'textarea') return true;
+                        if (el.isContentEditable) return true;
+                        return false;
+                    }
+
+                    // Helper: get string value from element
+                    function getElementValue(el) {
+                        var tag = (el.tagName || '').toLowerCase();
+                        if (tag === 'input' || tag === 'textarea') return el.value || '';
+                        if (el.isContentEditable) return el.innerText || '';
+                        return '';
+                    }
+
+                    // Helper: get current selection range {start,end}
+                    function getSelectionRange(el) {
+                        var tag = (el.tagName || '').toLowerCase();
+                        if (tag === 'input' || tag === 'textarea') {
+                            try {
+                                var s = el.selectionStart;
+                                var e = el.selectionEnd;
+                                if (typeof s === 'number' && typeof e === 'number') return { start: s, end: e };
+                            } catch (err) { /* ignore */ }
+                            var len = (el.value || '').length;
+                            return { start: len, end: len };
+                        }
+                        // contenteditable: compute offsets by using a range
+                        try {
+                            var sel = window.getSelection();
+                            if (!sel || sel.rangeCount === 0) {
+                                var l = (getElementValue(el) || '').length;
+                                return { start: l, end: l };
+                            }
+                            var range = sel.getRangeAt(0);
+                            var preRange = document.createRange();
+                            preRange.selectNodeContents(el);
+                            preRange.setEnd(range.startContainer, range.startOffset);
+                            var start = preRange.toString().length;
+                            var end = start + range.toString().length;
+                            return { start: start, end: end };
+                        } catch (err) {
+                            var fallbackLen = (getElementValue(el) || '').length;
+                            return { start: fallbackLen, end: fallbackLen };
+                        }
+                    }
+
+                    // Helper: set value/text on element and try to restore caret
+                    function setElementValue(el, value, caretPos) {
+                        var tag = (el.tagName || '').toLowerCase();
+
+                        if (tag === 'input' || tag === 'textarea') {
+                            el.value = value;
+                            try {
+                                // Ensure the element is focused so setSelectionRange works reliably.
+                                if (typeof el.focus === 'function') {
+                                    el.focus({ preventScroll: true });
+                                }
+                            } catch (e) { /* ignore */ }
+
+                            try {
+                                if (typeof caretPos === 'number') {
+                                  try {
+                                    el.setSelectionRange(caretPos, caretPos);
+                                  } catch (err) {
+                                    setTimeout(function () {
+                                      try { el.setSelectionRange(caretPos, caretPos); } catch (_) { }
+                                    }, 0);
+                                  }
+                                }
+                            } catch (e) {
+                                // ignore non-focusable cases
+                            }
+
+                            // Dispatch input event so other listeners respond
+                            var ev;
+                            try {
+                                ev = new Event('input', { bubbles: true });
+                            } catch (e) {
+                                ev = document.createEvent('Event');
+                                ev.initEvent('input', true, true);
+                            }
+                            el.dispatchEvent(ev);
+                            return;
+                        }
+
+                        if (el.isContentEditable) {
+                            el.innerText = value;
+                            var pos = (typeof caretPos === 'number') ? caretPos : (value || '').length;
+                            var range = document.createRange();
+                            var sel = window.getSelection();
+                            try {
+                                var node = el.firstChild;
+                                if (!node) {
+                                    node = document.createTextNode('');
+                                    el.appendChild(node);
+                                }
+                                var text = node.nodeValue || '';
+                                var offset = Math.max(0, Math.min(pos, text.length));
+                                range.setStart(node, offset);
+                                range.collapse(true);
+                                sel.removeAllRanges();
+                                sel.addRange(range);
+                            } catch (e) {
+                                range.selectNodeContents(el);
+                                range.collapse(false);
+                                sel.removeAllRanges();
+                                sel.addRange(range);
+                            }
+                            return;
+                        }
+                    }
+
+                    function getCaretPosition(el) {
+                        var tag = (el.tagName || '').toLowerCase();
+                        if (tag === 'input' || tag === 'textarea') {
+                            try {
+                                var pos = el.selectionStart;
+                                if (typeof pos === 'number') return pos;
+                            } catch (e) { /* ignore */ }
+                            return (el.value || '').length || 0;
+                        }
+                        return (getElementValue(el) || '').length;
+                    }
+
+                    function positionKeyboardForElement(el) {
+                        if (!keyboardContainer) return;
+                        keyboardContainer.style.visibility = 'hidden';
+                        keyboardContainer.classList.remove('virtual-keyboard-hidden');
+                        keyboardContainer.setAttribute('aria-hidden', 'false');
+
+                        window.requestAnimationFrame(function () {
+                            var kbRect = keyboardContainer.getBoundingClientRect();
+                            var elRect = el.getBoundingClientRect();
+                            var vw = window.innerWidth;
+                            var vh = window.innerHeight;
+                            var kbW = kbRect.width || Math.min(800, vw - 16);
+                            var kbH = kbRect.height || 240;
+
+                            var topBelow = elRect.bottom + POSITION_OFFSET;
+                            var topAbove = elRect.top - kbH - POSITION_OFFSET;
+                            var finalTop;
+
+                            if (topBelow + kbH <= vh - 8) {
+                                finalTop = topBelow;
+                            } else if (topAbove >= 8) {
+                                finalTop = Math.max(8, topAbove);
+                            } else {
+                                finalTop = Math.max(8, vh - kbH - 8);
+                            }
+
+                            var left = elRect.left + (elRect.width / 2) - (kbW / 2);
+                            left = Math.max(8, Math.min(left, vw - kbW - 8));
+
+                            keyboardContainer.style.left = left + 'px';
+                            keyboardContainer.style.top = finalTop + 'px';
+                            keyboardContainer.style.right = 'auto';
+                            keyboardContainer.style.bottom = 'auto';
+                            keyboardContainer.style.transform = 'none';
+                            keyboardContainer.style.visibility = 'visible';
+                            keyboardContainer.style.zIndex = 2000;
+                        });
+                    }
+
+                    function resetKeyboardPositionToBottom() {
+                        if (!keyboardContainer) return;
+                        keyboardContainer.style.left = '';
+                        keyboardContainer.style.top = '';
+                        keyboardContainer.style.right = '';
+                        keyboardContainer.style.bottom = '';
+                        keyboardContainer.style.transform = '';
+                        keyboardContainer.style.zIndex = 2000;
+                    }
+
+                    function showKeyboardForElement(el) {
+                        if (!keyboardInstance) {
+                            keyboardInstance = new SimpleKeyboardLib({
+                                onChange: onKeyboardChange,
+                                onKeyPress: onKeyboardKeyPress,
+                                theme: "hg-theme-default hg-layout-default",
+                                useMouseEvents: true,
+                                layout: {
+                                    default: [
+                                        "` 1 2 3 4 5 6 7 8 9 0 - = {bksp}",
+                                        "{tab} q w e r t y u i o p [ ] \\",
+                                        "{lock} a s d f g h j k l ; ' {enter}",
+                                        "{shift} z x c v b n m , . / {shift}",
+                                        ".com @@ {space}"
+                                    ],
+                                    shift: [
+                                        "~ ! @@ # $ % ^ & * ( ) _ + {bksp}",
+                                        "{tab} Q W E R T Y U I O P { } |",
+                                        "{lock} A S D F G H J K L : \" {enter}",
+                                        "{shift} Z X C V B N M < > ? {shift}",
+                                        ".com @@ {space}"
+                                    ]
+                                },
+                                display: {
+                                    '{bksp}': '⌫',
+                                    '{enter}': '⏎',
+                                    '{shift}': '⇧',
+                                    '{lock}': '⇪',
+                                    '{tab}': '⇥',
+                                    '{space}': '␣'
+                                }
+                            });
+                        }
+
+                        // make keyboard visible
+                        keyboardContainer.classList.remove('virtual-keyboard-hidden');
+                        keyboardContainer.setAttribute('aria-hidden', 'false');
+
+                        // set keyboard input to current element value and keep lastKeyboardValue in sync
+                        var val = getElementValue(el) || '';
+                        lastKeyboardValue = val;
+                        keyboardInstance.setInput(val);
+                        isShift = false;
+
+                        try {
+                            positionKeyboardForElement(el);
+                        } catch (err) {
+                            resetKeyboardPositionToBottom();
+                        }
+                    }
+
+                    function hideKeyboard() {
+                        if (keyboardContainer) {
+                            keyboardContainer.classList.add('virtual-keyboard-hidden');
+                            keyboardContainer.setAttribute('aria-hidden', 'true');
+                            resetKeyboardPositionToBottom();
+                        }
+                        if (activeElement && inputListener) {
+                            try {
+                                activeElement.removeEventListener('input', inputListener);
+                            } catch (err) { /* ignore */ }
+                        }
+                        activeElement = null;
+                        lastSelectionRange = null;
+                    }
+
+                    // keyboard onChange -> update element value using keyboard's canonical input
+                    function onKeyboardChange(input) {
+                        if (!activeElement) return;
+
+                        var prev = lastKeyboardValue || '';
+                        var prevLen = prev.length;
+                        var sel = lastSelectionRange || { start: getCaretPosition(activeElement), end: getCaretPosition(activeElement) };
+                        var replaced = Math.max(0, (sel.end || 0) - (sel.start || 0));
+
+                        // insertedCount = newLength - (oldLength - replacedLength)
+                        var insertedCount = (input.length) - (prevLen - replaced);
+                        if (isNaN(insertedCount)) insertedCount = input.length;
+
+                        var newCaret = (sel.start || 0) + Math.max(0, insertedCount);
+
+                        // clamp caret
+                        newCaret = Math.max(0, Math.min(newCaret, input.length));
+
+                        setElementValue(activeElement, input, newCaret);
+
+                        // update trackers
+                        lastKeyboardValue = input;
+                        lastSelectionRange = null;
+                    }
+
+                    // keyboard onKeyPress -> capture selection and manage layout/special keys
+                    function onKeyboardKeyPress(button) {
+                        if (!activeElement) return;
+
+                        // capture selection state before keyboard updates its internal input
+                        try {
+                            lastSelectionRange = getSelectionRange(activeElement);
+                        } catch (e) {
+                            lastSelectionRange = { start: getCaretPosition(activeElement), end: getCaretPosition(activeElement) };
+                        }
+
+                        if (button === "{shift}" || button === "{lock}") {
+                            isShift = !isShift;
+                            keyboardInstance.setOptions({
+                                layoutName: isShift ? "shift" : "default"
+                            });
+                            return;
+                        }
+
+                        if (button === "{bksp}") {
+                            // Let keyboard internal state change and onChange handle DOM sync.
+                            return;
+                        }
+
+                        if (button === "{enter}") {
+                            var tag = (activeElement.tagName || '').toLowerCase();
+                            if (tag === 'textarea' || activeElement.isContentEditable) {
+                                // let keyboard internal input include newline if it does; onChange will sync
+                                return;
+                            } else {
+                                // close keyboard for non-text controls
+                                try { activeElement.blur(); } catch (e) { }
+                                hideKeyboard();
+                                return;
+                            }
+                        }
+
+                        // Other special tokens mapping handled by keyboard's layout; do nothing here.
+                        // onChange will synchronize the canonical keyboard string into the element.
+                    }
+
+                    // Sync physical keyboard typing into the virtual keyboard display and keep lastKeyboardValue updated
+                    function onElementInputSync(e) {
+                        if (!keyboardInstance) return;
+                        var el = e.target;
+                        if (el !== activeElement) return;
+                        var v = getElementValue(el) || '';
+                        lastKeyboardValue = v;
+                        keyboardInstance.setInput(v);
+                    }
+
+                    // Focus handler: show keyboard for the focused element
+                    document.addEventListener('focusin', function (e) {
+                        var target = e.target;
+                        if (isVirtualEditable(target)) {
+                            if (hideTimeout) {
+                                clearTimeout(hideTimeout);
+                                hideTimeout = null;
+                            }
+
+                            activeElement = target;
+                            if (!inputListener) {
+                                inputListener = onElementInputSync;
+                            }
+                            try {
+                                activeElement.addEventListener('input', inputListener);
+                            } catch (err) { /* ignore */ }
+
+                            // sync trackers
+                            lastKeyboardValue = getElementValue(activeElement) || '';
+                            lastSelectionRange = null;
+
+                            showKeyboardForElement(activeElement);
+                        }
+                    });
+
+                    // When focus leaves an editable element, start a short timer to hide keyboard
+                    document.addEventListener('focusout', function (e) {
+                        var related = e.relatedTarget;
+                        if (related && (keyboardContainer.contains(related) || isVirtualEditable(related))) {
+                            return;
+                        }
+                        hideTimeout = setTimeout(function () {
+                            hideKeyboard();
+                        }, 150);
+                    });
+
+                    // Hide when tapping/clicking outside inputs and keyboard
+                    document.addEventListener('pointerdown', function (e) {
+                        var target = e.target;
+                        if (!keyboardContainer.contains(target) && !isVirtualEditable(target)) {
+                            hideKeyboard();
+                        }
+                    });
+
+                    // Ensure clicks inside the keyboard keep it visible and return focus when needed
+                    if (keyboardContainer) {
+                        keyboardContainer.addEventListener('pointerdown', function (e) {
+                            e.preventDefault();
+                        });
+                    }
+
+                    // Close button behavior: blur active element and hide keyboard
+                    if (closeBtn) {
+                        closeBtn.addEventListener('click', function (e) {
+                            e.preventDefault();
+                            try { if (activeElement) activeElement.blur(); } catch (_) { }
+                            hideKeyboard();
+                        });
+                    }
+
+                    // Hide on Escape key
+                    document.addEventListener('keydown', function (e) {
+                        if (e.key === 'Escape') {
+                            hideKeyboard();
+                            if (activeElement) activeElement.blur();
+                        }
+                    });
+
+                    // Expose simple helper for pages/scripts to toggle keyboard manually if needed
+                    window.VirtualKeyboard = {
+                        showFor: function (el) {
+                            if (isVirtualEditable(el)) {
+                                el.focus();
+                                showKeyboardForElement(el);
+                            }
+                        },
+                        hide: hideKeyboard,
+                        isVisible: function () {
+                            return keyboardContainer && !keyboardContainer.classList.contains('virtual-keyboard-hidden');
+                        }
+                    };
+                }
+
+                tryInit();
+            });
+        })();
+    </script>
+
     <script src="~/js/clock.js"></script>
 @await RenderSectionAsync("Scripts", false)
 </body>

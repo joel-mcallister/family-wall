@@ -21,8 +21,34 @@
     </div>
 </div>
 
+<form id="antiforgeryForm" asp-controller="Slideshow" asp-action="YourAction" method="post" style="display:none;">
+    @Html.AntiForgeryToken()
+</form>
+
+<div id="buttonContainer" style="position: absolute; bottom: 1rem; left: 1rem; z-index: 1001;">
+    <button id="rotateBtn" aria-label="Rotate Image" class="btn btn-light" style="margin-right: 0.5rem; opacity: 20%">
+        <i class="fa-solid fa-rotate-right"></i>
+    </button>
+    <button id="deleteBtn" aria-label="Delete Image" class="btn btn-light" style="margin-right: 0.5rem; opacity: 20%">
+        <i class="fa-solid fa-trash"></i>
+    </button>
+</div>
+
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto" id="toast-title">Slideshow</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toast-message">
+            Hello, world! This is a toast message.
+        </div>
+    </div>
+</div>
+
 @section Head
 {
+    <link href="~/css/main.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/slideshow.css" />
 }
 

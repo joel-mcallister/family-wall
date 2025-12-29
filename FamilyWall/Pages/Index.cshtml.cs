@@ -170,6 +170,9 @@ public class IndexModel(
                 .Select(f => $"/photos/{Path.GetFileName(f)}")
                 .ToList();
 
+            var invalidPhotos = db.Photos.FindAll().Where(x => x.IsDeleted == true).ToList();
+
+            photos = photos.Except(invalidPhotos.Select(x => $"/photos/{x.FileName}")).ToList();
             // Initialize or reconcile the Photos dictionary
             if (cache.TryGetValue("Photos", out Dictionary<string, int>? cachedPhotos) && cachedPhotos != null)
             {
@@ -189,6 +192,12 @@ public class IndexModel(
                 {
                     Photos.Remove(k);
                 }
+            }
+
+            if (cachedPhotos?.Count != photos.Count)
+            {
+                // Clear the cache if they don't match cause something was added or deleted.
+                cache.Remove("Photos");
             }
 
             // Determine least-picked photos and pick randomly among them
@@ -216,6 +225,7 @@ public class IndexModel(
 
                 return new JsonResult(new
                 {
+                    id = details?.Id,
                     url = photo, 
                     taken = details?.Photo?.TakenDateTime?.ToString("f"),
                     alltitude = details?.Location?.Altitude,
@@ -304,7 +314,7 @@ public class IndexModel(
                 id = e.EventId,
                 title = e.Title,
                 start = e.IsAllDay ? e.StartDateTime.ToString("yyyy-MM-dd") : e.StartDateTime.ToString("yyyy-MM-ddTHH:mm"),
-                end = e.IsAllDay ? e.EndDateTime.AddDays(1).ToString("yyyy-MM-dd") : e.EndDateTime.ToString("yyyy-MM-ddTHH:mm"),
+                end = e.IsAllDay ? e.EndDateTime.ToString("yyyy-MM-dd") : e.EndDateTime.ToString("yyyy-MM-ddTHH:mm"),
                 allDay = e.IsAllDay,
                 description = e.Description,
                 location = e.Location,

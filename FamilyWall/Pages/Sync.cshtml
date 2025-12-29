@@ -32,15 +32,29 @@ else
                 var id = p.Id;
                 var fileName = p.Name ?? "(no name)";
                 var initialStatus = "not started";
-                
-                <tr>
-                    <td>@fileName</td>
-                    <td>@p.Photo?.TakenDateTime?.ToString()</td>
-                    <td id="status-@id">@initialStatus</td>
-                    <td>
-                        <button class="sync-btn" type="button" data-id="@id">Sync</button>
-                    </td>
-                </tr>
+
+                if (Model.DeletedPhotos.Any(x => x.Id == p.Id))
+                {
+                    <tr>
+                        <td>@fileName</td>
+                        <td>@p.Photo?.TakenDateTime?.ToString()</td>
+                        <td id="status-@id">DELETED</td>
+                        <td>
+                            
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    <tr>
+                        <td>@fileName</td>
+                        <td>@p.Photo?.TakenDateTime?.ToString()</td>
+                        <td id="status-@id">@initialStatus</td>
+                        <td>
+                            <button class="sync-btn" type="button" data-id="@id">Sync</button>
+                        </td>
+                    </tr>
+                }
             }
         </tbody>
     </table>

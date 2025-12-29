@@ -120,6 +120,7 @@ function getCurrentForecast() {
 
                         const col = document.createElement('div');
                         col.className = 'col-6';
+                        col.id = 'forecast';
                         col.innerHTML = `
                                     <div class="card card-style" id="f${p.PeriodName || p.periodName || ''}">
                                         <div class="row g-0">

@@ -1,3 +1,4 @@
+using FamilyWall.Database.Context;
 using FamilyWall.Database.Entities;
 using FamilyWall.Database.Interfaces;
 using FamilyWall.Models;
@@ -22,6 +23,8 @@ public class SyncModel(
 {
     public required List<OneDriveItem> AllPhotos { get; set; }
 
+    public required List<FamilyWallPhoto> DeletedPhotos { get; set; }
+
     public async Task<IActionResult> OnGetSyncPhoto(string id)
     {
         return await oneDriveImageService.OnGetSyncPhoto(id);
@@ -29,6 +32,18 @@ public class SyncModel(
 
     public async Task<IActionResult> OnGet()
     {
+        var webp = Directory.GetFiles(Path.Combine(env.ContentRootPath, "photos"), "*.webp");
+
+        if (webp.Any())
+        {
+            foreach (var item in webp)
+            {
+                db.Photos.Delete(Path.GetFileName(item));
+                System.IO.File.Delete(item);
+                System.IO.File.Delete(item.Replace(".webp", ".json"));
+            }
+        }
+
         try
         {
             oneDriveImageService.ClearCache();
@@ -62,6 +77,8 @@ public class SyncModel(
         {
             logger.LogError(ex, "Can't write to database");
         }
+
+        DeletedPhotos = db.Photos.FindAll().Where(x => x.IsDeleted == true).ToList();
 
         return Page();
     }

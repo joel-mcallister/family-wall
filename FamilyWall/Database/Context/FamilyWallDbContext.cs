@@ -35,4 +35,5 @@ public class FamilyWallDbContext : IFamilyWallDataContext, IDisposable
 public sealed class FamilyWallPhoto : OneDriveItem
 {
     public string FileName { get; set; }
+    public bool? IsDeleted { get; set; } = false;
 }
