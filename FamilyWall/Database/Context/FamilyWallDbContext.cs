@@ -1,6 +1,5 @@
 ﻿using FamilyWall.Database.Entities;
 using FamilyWall.Database.Interfaces;
-using FamilyWall.Models;
 using LiteDB;
 
 namespace FamilyWall.Database.Context;
@@ -30,10 +29,4 @@ public class FamilyWallDbContext : IFamilyWallDataContext, IDisposable
     public ILiteCollection<FamilyWallPhoto> Photos => _db.GetCollection<FamilyWallPhoto>("photos");
 
     public void Dispose() => _db.Dispose();
-}
-
-public sealed class FamilyWallPhoto : OneDriveItem
-{
-    public string FileName { get; set; }
-    public bool? IsDeleted { get; set; } = false;
 }

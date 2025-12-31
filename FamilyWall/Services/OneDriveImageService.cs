@@ -24,11 +24,6 @@ public sealed class OneDriveImageService(
 
     private string AccessToken { get; set; } = "";
 
-    public void ClearCache()
-    {
-        cache.Remove("Photos");
-    }
-
     public async Task SyncPhotoDetails(string id)
     {
         var ct = CancellationToken.None;
@@ -249,6 +244,20 @@ public sealed class OneDriveImageService(
     private async Task<string?> ConvertHeicToJpegWithMagickAsync(Stream heicStream, CancellationToken ct)
     {
         return null;
+    }
+
+    public void ResetDisplayCount()
+    {
+        var photos = db.Photos.FindAll();
+
+        var toUpdate = new List<FamilyWallPhoto>();
+        foreach (var item in photos)
+        {
+            item.DisplayCount = 0;
+            toUpdate.Add(item);
+        }
+
+        db.Photos.Upsert(toUpdate);
     }
 
     public async Task<List<OneDriveItem>> SyncPhotos(string accessToken, CancellationToken ct = default)

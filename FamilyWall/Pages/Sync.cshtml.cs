@@ -32,21 +32,9 @@ public class SyncModel(
 
     public async Task<IActionResult> OnGet()
     {
-        var webp = Directory.GetFiles(Path.Combine(env.ContentRootPath, "photos"), "*.webp");
-
-        if (webp.Any())
-        {
-            foreach (var item in webp)
-            {
-                db.Photos.Delete(Path.GetFileName(item));
-                System.IO.File.Delete(item);
-                System.IO.File.Delete(item.Replace(".webp", ".json"));
-            }
-        }
-
         try
         {
-            oneDriveImageService.ClearCache();
+            oneDriveImageService.ResetDisplayCount();
             string token = await tokenAcquisition.GetAccessTokenForUserAsync(["Files.Read", "Tasks.ReadWrite"]);
             AllPhotos = await oneDriveImageService.SyncPhotos(token);
         }
@@ -79,6 +67,8 @@ public class SyncModel(
         }
 
         DeletedPhotos = db.Photos.FindAll().Where(x => x.IsDeleted == true).ToList();
+
+
 
         return Page();
     }

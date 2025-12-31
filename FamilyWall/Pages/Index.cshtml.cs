@@ -10,14 +10,14 @@ using Microsoft.Identity.Web;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using FamilyWall.Database.Context;
 
 namespace FamilyWall.Pages;
 
 [Authorize]
 [AuthorizeForScopes(Scopes = ["Files.Read", "Tasks.ReadWrite"])]
 public class IndexModel(
-    IMemoryCache cache,
-    IWebHostEnvironment env,
+    OneDriveImageService oneDriveImageService,
     GoogleCalendarService calendarService, 
     NwsWeatherClient client,
     IFamilyWallDataContext db,
@@ -142,7 +142,7 @@ public class IndexModel(
         }
     }
 
-    public Dictionary<string, int> Photos { get; set; } = new();
+    
 
     // PSEUDOCODE / PLAN:
     // 1. Build path to "photos" folder.
@@ -159,85 +159,39 @@ public class IndexModel(
     // 3. If folder doesn't exist, return OkResult().
     public IActionResult OnGetRandomImage()
     {
-        var photosFolder = Path.Combine(env.ContentRootPath, "photos");
+        List<FamilyWallPhoto> photos = db.Photos.FindAll().Where(x => x.IsDeleted != true).OrderBy(x => x.DisplayCount).ToList();
 
-        if (Directory.Exists(photosFolder))
+        var minCount = photos.FirstOrDefault()?.DisplayCount ?? 0;
+
+        if (minCount >= int.MaxValue - 10)
         {
-            var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
-
-            var photos = Directory.GetFiles(photosFolder)
-                .Where(f => supportedExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()))
-                .Select(f => $"/photos/{Path.GetFileName(f)}")
-                .ToList();
-
-            var invalidPhotos = db.Photos.FindAll().Where(x => x.IsDeleted == true).ToList();
-
-            photos = photos.Except(invalidPhotos.Select(x => $"/photos/{x.FileName}")).ToList();
-            // Initialize or reconcile the Photos dictionary
-            if (cache.TryGetValue("Photos", out Dictionary<string, int>? cachedPhotos) && cachedPhotos != null)
-            {
-                Photos = cachedPhotos;
-            }
-            else
-            {
-                // Add new photos with count 0
-                foreach (var p in photos)
-                {
-                    Photos.TryAdd(p, 0);
-                }
-
-                // Remove entries for files that no longer exist
-                var keysToRemove = Photos.Keys.Except(photos).ToList();
-                foreach (var k in keysToRemove)
-                {
-                    Photos.Remove(k);
-                }
-            }
-
-            if (cachedPhotos?.Count != photos.Count)
-            {
-                // Clear the cache if they don't match cause something was added or deleted.
-                cache.Remove("Photos");
-            }
-
-            // Determine least-picked photos and pick randomly among them
-            var minCount = Photos.Values.DefaultIfEmpty(0).Min();
-            var candidates = Photos.Where(kvp => kvp.Value == minCount).Select(kvp => kvp.Key).ToList();
-
-            var photo = candidates.Count == 1 ? candidates[0] : candidates[_random.Next(candidates.Count)];
-
-            // Increment pick count
-            Photos.TryGetValue(photo, out var currentCount);
-            Photos[photo] = currentCount + 1;
-
-            cache.Set("Photos", Photos, new MemoryCacheEntryOptions
-            {
-                SlidingExpiration = TimeSpan.FromHours(2)
-            });
-
-            var path = Path.Combine(photosFolder, $"{Path.GetFileNameWithoutExtension(photo)}.json");
-            if (System.IO.File.Exists(path))
-            {
-                var readAllText = System.IO.File.ReadAllText(path);
-                var details =
-                    JsonSerializer.Deserialize<OneDriveItem>(
-                        readAllText, _json);
-
-                return new JsonResult(new
-                {
-                    id = details?.Id,
-                    url = photo, 
-                    taken = details?.Photo?.TakenDateTime?.ToString("f"),
-                    alltitude = details?.Location?.Altitude,
-                    longitude = details?.Location?.Longitude,
-                    latitude = details?.Location?.Latitude,
-                    camera = details?.Photo?.CameraMake,
-                    cameraModel = details?.Photo?.CameraModel
-                });
-            }
-
-            return new JsonResult(new { url = photo });
+            logger.LogWarning($"Resetting minCount since it was {minCount}");
+            oneDriveImageService.ResetDisplayCount();
+            photos = db.Photos.FindAll().Where(x => x.IsDeleted != true).OrderBy(x => x.DisplayCount).ToList();
+            minCount = photos.FirstOrDefault()?.DisplayCount ?? 0;
         }
+
+        // Determine least-picked photos and pick randomly among them
+            
+        var candidates = photos.Where(kvp => kvp.DisplayCount == minCount).ToList();
+
+        var photo = candidates.Count == 1 ? candidates[0] : candidates[_random.Next(candidates.Count)];
+
+        // Increment pick count
+        photo.DisplayCount++;
+        db.Photos.Upsert(photo);
+
+        return new JsonResult(new
+        {
+            id = photo.Id,
+            url = $"/photos/{photo.FileName}", 
+            taken = photo?.Photo?.TakenDateTime?.ToString("f"),
+            alltitude = photo?.Location?.Altitude,
+            longitude = photo?.Location?.Longitude,
+            latitude = photo?.Location?.Latitude,
+            camera = photo?.Photo?.CameraMake,
+            cameraModel = photo?.Photo?.CameraModel
+        });
 
         return new OkResult();
     }
